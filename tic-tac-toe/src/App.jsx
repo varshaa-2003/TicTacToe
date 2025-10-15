@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
+
 
 function App() {
   const [squares, setSquares] = useState(Array(9).fill(null));
@@ -7,6 +10,8 @@ function App() {
   const boardRef = useRef(null);
   const cellRefs = useRef([]); // will hold refs to 9 cells
   const [lineStyle, setLineStyle] = useState(null);
+  const { width, height } = useWindowSize();
+
 
   function handleClick(index) {
     if (squares[index] || winningLine) return;
@@ -72,7 +77,7 @@ function App() {
       top: `${midY}px`,
       width: `${length}px`,
       height: `${thickness}px`,
-      backgroundColor: "#ff4d4d",
+      backgroundColor: "#000000",
       transform: `translate(-50%, -50%) rotate(${angle}deg)`,
       transformOrigin: "center center",
       zIndex: 5,
@@ -110,6 +115,16 @@ function App() {
   };
 
   return (
+   <>
+    {winner && (
+      <Confetti
+        width={width}
+        height={height}
+        recycle={false}
+        numberOfPieces={300}
+      />
+   )} 
+  
     <div
       style={{
         minHeight: "100vh",
@@ -165,7 +180,7 @@ function App() {
                 fontSize: "calc(1.6rem + 1.2vw)",
                 fontWeight: 700,
                 borderRadius: 10,
-                border: "2px solid #e6e6e6",
+                border: "2px solid #000000",
                 background: val ? (val === "X" ? "#4dabf7" : "#ff6b6b") : "#ffffff",
                 color: val ? "#fff" : "#333",
                 cursor: val || winner ? "not-allowed" : "pointer",
@@ -204,6 +219,7 @@ function App() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
