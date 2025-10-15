@@ -1,171 +1,208 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 function App() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
-  const [winningLine, setWinningLine] = useState(null); // stores winning line indices
+  const [winningLine, setWinningLine] = useState(null); // array like [0,1,2]
+  const boardRef = useRef(null);
+  const cellRefs = useRef([]); // will hold refs to 9 cells
+  const [lineStyle, setLineStyle] = useState(null);
 
   function handleClick(index) {
     if (squares[index] || winningLine) return;
-
-    const newSquares = [...squares];
-    newSquares[index] = xIsNext ? "X" : "O";
-    setSquares(newSquares);
+    const ns = [...squares];
+    ns[index] = xIsNext ? "X" : "O";
+    setSquares(ns);
     setXIsNext(!xIsNext);
 
-    const winnerInfo = calculateWinner(newSquares);
-    if (winnerInfo) {
-      setWinningLine(winnerInfo.line); // save winning line
-    }
+    const winnerInfo = calculateWinner(ns);
+    if (winnerInfo) setWinningLine(winnerInfo.line);
   }
 
-  function calculateWinner(squares) {
+  function calculateWinner(board) {
     const lines = [
-      [0, 1, 2], // top row
-      [3, 4, 5], // middle row
-      [6, 7, 8], // bottom row
-      [0, 3, 6], // left column
-      [1, 4, 7], // middle column
-      [2, 5, 8], // right column
-      [0, 4, 8], // diagonal TL-BR
-      [2, 4, 6], // diagonal TR-BL
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
     ];
-
-    for (let line of lines) {
+    for (const line of lines) {
       const [a, b, c] = line;
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return { winner: squares[a], line };
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return { winner: board[a], line };
       }
     }
     return null;
   }
 
+  // compute line style from actual DOM positions
+  const computeLine = () => {
+    if (!winningLine || !boardRef.current) {
+      setLineStyle(null);
+      return;
+    }
+    const [i1, , i3] = winningLine; // ends of the line
+    const el1 = cellRefs.current[i1];
+    const el3 = cellRefs.current[i3];
+    const boardRect = boardRef.current.getBoundingClientRect();
+
+    if (!el1 || !el3) return;
+
+    const r1 = el1.getBoundingClientRect();
+    const r3 = el3.getBoundingClientRect();
+
+    // center coordinates relative to board's top-left
+    const x1 = r1.left - boardRect.left + r1.width / 2;
+    const y1 = r1.top - boardRect.top + r1.height / 2;
+    const x3 = r3.left - boardRect.left + r3.width / 2;
+    const y3 = r3.top - boardRect.top + r3.height / 2;
+
+    const midX = (x1 + x3) / 2;
+    const midY = (y1 + y3) / 2;
+    const dx = x3 - x1;
+    const dy = y3 - y1;
+    const length = Math.hypot(dx, dy);
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+    // line thickness and color
+    const thickness = Math.max(6, Math.min(12, boardRect.width * 0.012)); // responsive thickness
+
+    setLineStyle({
+      position: "absolute",
+      left: `${midX}px`,
+      top: `${midY}px`,
+      width: `${length}px`,
+      height: `${thickness}px`,
+      backgroundColor: "#ff4d4d",
+      transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+      transformOrigin: "center center",
+      zIndex: 5,
+      borderRadius: `${thickness / 2}px`,
+      transition: "width 200ms ease, left 200ms ease, top 200ms ease, transform 200ms ease",
+      pointerEvents: "none",
+    });
+  };
+
+  // recalc whenever the winningLine changes or on resize
+  useEffect(() => {
+    computeLine();
+    function onResize() {
+      computeLine();
+    }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [winningLine, squares]);
+
+  // reset board
+  const reset = () => {
+    setSquares(Array(9).fill(null));
+    setXIsNext(true);
+    setWinningLine(null);
+    setLineStyle(null);
+  };
+
   const winner = winningLine ? squares[winningLine[0]] : null;
   const status = winner ? `Winner: ${winner}` : `Next: ${xIsNext ? "X" : "O"}`;
 
-  // line styles based on winning combination
-  const getLineStyle = (line) => {
-    if (!line) return {};
-    const [a, , c] = line;
-
-    // horizontal
-    if (line[0] % 3 === 0 && line[1] % 3 === 1 && line[2] % 3 === 2) {
-      return { top: `${Math.floor(a / 3) * 110 + 50}px`, left: "0px", width: "330px", height: "5px", transform: "none" };
-    }
-    // vertical
-    if (line[0] < 3 && line[1] < 6 && line[2] < 9 && line[0] % 3 === line[1] % 3 && line[0] % 3 === line[2] % 3) {
-      return { top: "0px", left: `${(line[0] % 3) * 110 + 50}px`, width: "5px", height: "330px", transform: "none" };
-    }
-    // diagonal TL-BR
-    if (line[0] === 0 && line[1] === 4 && line[2] === 8) {
-      return { top: "0px", left: "0px", width: "5px", height: "330px", transform: "rotate(45deg)", transformOrigin: "top left" };
-    }
-    // diagonal TR-BL
-    if (line[0] === 2 && line[1] === 4 && line[2] === 6) {
-      return { top: "0px", left: "330px", width: "5px", height: "330px", transform: "rotate(-45deg)", transformOrigin: "top right" };
-    }
-    return {};
+  // helper to set cell ref
+  const setCellRef = (el, i) => {
+    cellRefs.current[i] = el;
   };
 
   return (
     <div
       style={{
+        minHeight: "100vh",
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
+        backgroundColor: "#ffffff",
+        padding: "18px",
+        boxSizing: "border-box",
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <h1 style={{ color: "#333", marginBottom: "20px" }}>Tic Tac Toe</h1>
-      <div
-        style={{
-          marginBottom: "15px",
-          fontSize: "1.5rem",
-          fontWeight: "bold",
-          color: winner ? "#ff4d4d" : "#333",
-        }}
-      >
-        {status}
-      </div>
+      <div style={{ textAlign: "center", width: "100%", maxWidth: "520px" }}>
+        <h1 style={{ margin: 0, color: "#222", fontSize: "1.6rem" }}>Tic Tac Toe</h1>
+        <div style={{ marginTop: 10, marginBottom: 18, fontWeight: 600, color: winner ? "#ff4d4d" : "#333" }}>
+          {status}
+        </div>
 
-      <div style={{ position: "relative" }}>
-        {/* Winning line overlay */}
-        {winningLine && (
-          <div
-            style={{
-              position: "absolute",
-              backgroundColor: "#ff4d4d",
-              ...getLineStyle(winningLine),
-              zIndex: 1,
-            }}
-          />
-        )}
-
-        {/* Grid */}
+        {/* Board wrapper: width is responsive but fixed for internal layout */}
         <div
+          ref={boardRef}
           style={{
+            margin: "0 auto",
+            width: "min(360px, 80vw)", // responsive: no larger than 360px, scales down on small screens
+            height: "min(360px, 80vw)",
+            position: "relative",
+            boxSizing: "border-box",
             display: "grid",
-            gridTemplateColumns: "repeat(3, 100px)",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateRows: "repeat(3, 1fr)",
             gap: "10px",
+            padding: "6px",
+            background: "#fafafa",
+            borderRadius: "12px",
+            boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
           }}
         >
-          {squares.map((value, index) => (
+          {/* winning line drawn with exact geometry */}
+          {lineStyle && <div style={lineStyle} />}
+
+          {/* cells */}
+          {squares.map((val, idx) => (
             <button
-              key={index}
-              onClick={() => handleClick(index)}
+              key={idx}
+              ref={(el) => setCellRef(el, idx)}
+              onClick={() => handleClick(idx)}
               style={{
-                width: "100px",
-                height: "100px",
-                fontSize: "2.5rem",
-                fontWeight: "bold",
-                borderRadius: "15px",
-                border: "2px solid #333",
-                cursor: squares[index] || winner ? "not-allowed" : "pointer",
-                backgroundColor: value === "X" ? "#4dabf7" : value === "O" ? "#ff6b6b" : "#f0f0f0",
-                color: value ? "#fff" : "#333",
-                transition: "all 0.3s ease",
-                zIndex: 2,
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "calc(1.6rem + 1.2vw)",
+                fontWeight: 700,
+                borderRadius: 10,
+                border: "2px solid #e6e6e6",
+                background: val ? (val === "X" ? "#4dabf7" : "#ff6b6b") : "#ffffff",
+                color: val ? "#fff" : "#333",
+                cursor: val || winner ? "not-allowed" : "pointer",
+                transition: "background 160ms ease, transform 100ms ease",
+                boxSizing: "border-box",
+                padding: 0,
+                userSelect: "none",
               }}
-              onMouseOver={(e) => {
-                if (!squares[index] && !winner) e.target.style.backgroundColor = "#a0c4ff";
+              onMouseDown={(e) => {
+                if (!squares[idx] && !winner) e.currentTarget.style.transform = "scale(0.98)";
               }}
-              onMouseOut={(e) => {
-                if (!squares[index] && !winner) e.target.style.backgroundColor = "#f0f0f0";
-              }}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "none")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "none")}
             >
-              {value}
+              {val}
             </button>
           ))}
         </div>
-      </div>
 
-      <button
-        onClick={() => {
-          setSquares(Array(9).fill(null));
-          setXIsNext(true);
-          setWinningLine(null);
-        }}
-        style={{
-          marginTop: "25px",
-          padding: "10px 25px",
-          fontSize: "1rem",
-          fontWeight: "bold",
-          borderRadius: "10px",
-          border: "none",
-          backgroundColor: "#20c997",
-          color: "#fff",
-          cursor: "pointer",
-          boxShadow: "0px 4px 6px rgba(0,0,0,0.2)",
-          transition: "all 0.3s ease",
-        }}
-        onMouseOver={(e) => (e.target.style.backgroundColor = "#38d9a9")}
-        onMouseOut={(e) => (e.target.style.backgroundColor = "#20c997")}
-      >
-        Restart Game
-      </button>
+        <div style={{ marginTop: 18 }}>
+          <button
+            onClick={reset}
+            style={{
+              padding: "10px 18px",
+              borderRadius: 10,
+              border: "none",
+              background: "#20c997",
+              color: "#fff",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 6px 14px rgba(32,201,151,0.18)",
+            }}
+          >
+            Restart Game
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
