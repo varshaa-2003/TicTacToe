@@ -55,6 +55,7 @@ function App() {
     const r1 = el1.getBoundingClientRect();
     const r3 = el3.getBoundingClientRect();
 
+    
     // center coordinates relative to board's top-left
     const x1 = r1.left - boardRect.left + r1.width / 2;
     const y1 = r1.top - boardRect.top + r1.height / 2;
@@ -125,18 +126,20 @@ function App() {
       />
    )} 
   
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#ffffff",
-        padding: "18px",
-        boxSizing: "border-box",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      }}
-    >
+   <div
+  style={{
+    width: "100vw",          // ⬅️ fill the full screen width
+    height: "100vh",         // ⬅️ fill full height
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff", // ⬅️ white background
+    padding: "18px",
+    boxSizing: "border-box",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  }}
+>
+
       <div style={{ textAlign: "center", width: "100%", maxWidth: "520px" }}>
         <h1 style={{ margin: 0, color: "#222", fontSize: "1.6rem" }}>Tic Tac Toe</h1>
         <div style={{ marginTop: 10, marginBottom: 18, fontWeight: 600, color: winner ? "#ff4d4d" : "#333" }}>
@@ -222,5 +225,22 @@ function App() {
     </>
   );
 }
+const buttonStyle = {
+  marginTop: "20px",
+  padding: "10px 20px",
+  fontSize: "18px",
+  backgroundColor: "#007bff",
+  color: "white",
+  border: "none",
+  borderRadius: "10px",
+  cursor: "pointer",
+  transition: "all 0.3s ease-in-out",
+  boxShadow: "0 4px 10px rgba(0, 123, 255, 0.3)",
+};
+
+const buttonHoverStyle = {
+  transform: "scale(1.1)",
+  boxShadow: "0 0 20px rgba(0, 123, 255, 0.8)",
+};
 
 export default App;
