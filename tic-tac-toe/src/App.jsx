@@ -122,7 +122,7 @@ function App() {
         width={width}
         height={height}
         recycle={false}
-        numberOfPieces={300}
+        numberOfPieces={3000}
       />
    )} 
 
@@ -221,12 +221,21 @@ function App() {
             style={{
               padding: "10px 18px",
               borderRadius: 10,
-              border: "none",
+              border: "2px solid #000",
               background: "#20c997",
               color: "#fff",
               fontWeight: 600,
               cursor: "pointer",
               boxShadow: "0 6px 14px rgba(32,201,151,0.18)",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+             }}
+             onMouseEnter={(e) => {
+             e.currentTarget.style.transform = "scale(1.05)";
+             e.currentTarget.style.boxShadow = "0 0 20px rgba(32,201,151,0.6)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "0 6px 14px rgba(32,201,151,0.18)";
             }}
           >
             Restart Game
@@ -237,21 +246,4 @@ function App() {
     </>
   );
 }
-const buttonStyle = {
-  marginTop: "20px",
-  padding: "10px 20px",
-  fontSize: "18px",
-  backgroundColor: "#007bff",
-  color: "white",
-  border: "none",
-  borderRadius: "10px",
-  cursor: "pointer",
-  transition: "all 0.3s ease-in-out",
-  boxShadow: "0 4px 10px rgba(0, 123, 255, 0.3)",
-};
-
-const buttonHoverStyle = {
-  transform: "scale(1.1)",
-  boxShadow: "0 0 20px rgba(0, 123, 255, 0.8)",
-};
 export default App;
