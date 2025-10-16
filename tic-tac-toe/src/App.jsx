@@ -133,6 +133,7 @@ function App() {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    backgroundImage: "url('https://i.pinimg.com/736x/ff/2f/ab/ff2fabc2b944ac0e38a0bd85a3158870.jpg')",
     backgroundColor: "#ffffff", // ⬅️ white background
     padding: "18px",
     boxSizing: "border-box",
@@ -142,7 +143,7 @@ function App() {
 
       <div style={{ textAlign: "center", width: "100%", maxWidth: "520px" }}>
         <h1 style={{ margin: 0, color: "#222", fontSize: "1.6rem" }}></h1>
-        <h1 style={{ margin: 0, color: "#ff776bff", fontSize: "2.4rem",textShadow: "2px 2px #222",
+        <h1 style={{ margin: 0, color: "#8B0000", fontSize: "2.4rem",textShadow: "2px 2px #222",
           fontFamily: "'Comic Sans MS', 'Comic Neue', cursive",
           letterSpacing: "3px",
           textTransform: "uppercase", }}>Tic Tac Toe</h1>
