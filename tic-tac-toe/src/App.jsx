@@ -141,7 +141,10 @@ function App() {
 >
 
       <div style={{ textAlign: "center", width: "100%", maxWidth: "520px" }}>
-        <h1 style={{ margin: 0, color: "#222", fontSize: "1.6rem" }}>Tic Tac Toe</h1>
+        <h1 style={{ margin: 0, color: "#ff776bff", fontSize: "2.4rem",textShadow: "2px 2px #222",
+          fontFamily: "'Comic Sans MS', 'Comic Neue', cursive",
+          letterSpacing: "3px",
+          textTransform: "uppercase", }}>Tic Tac Toe</h1>
         <div style={{ marginTop: 10, marginBottom: 18, fontWeight: 600, color: winner ? "#ff4d4d" : "#333" }}>
           {status}
         </div>
