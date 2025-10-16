@@ -143,7 +143,7 @@ function App() {
 
       <div style={{ textAlign: "center", width: "100%", maxWidth: "520px" }}>
         <h1 style={{ margin: 0, color: "#222", fontSize: "1.6rem" }}></h1>
-        <h1 style={{ margin: 0, color: "#8B0000", fontSize: "2.4rem",textShadow: "2px 2px #222",
+        <h1 style={{ margin: 0, color: "#FFD700", fontSize: "2.4rem",textShadow: "2px 2px #222",
           fontFamily: "'Comic Sans MS', 'Comic Neue', cursive",
           letterSpacing: "3px",
           textTransform: "uppercase", }}>Tic Tac Toe</h1>
@@ -165,7 +165,7 @@ function App() {
             gridTemplateRows: "repeat(3, 1fr)",
             gap: "10px",
             padding: "6px",
-            background: "#fafafa",
+            background: "transparent",
             borderRadius: "12px",
             boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
           }}
