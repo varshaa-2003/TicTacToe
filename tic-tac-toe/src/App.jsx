@@ -55,7 +55,7 @@ function App() {
     const r1 = el1.getBoundingClientRect();
     const r3 = el3.getBoundingClientRect();
 
-    
+
     // center coordinates relative to board's top-left
     const x1 = r1.left - boardRect.left + r1.width / 2;
     const y1 = r1.top - boardRect.top + r1.height / 2;
@@ -125,7 +125,7 @@ function App() {
         numberOfPieces={300}
       />
    )} 
-  
+
    <div
   style={{
     width: "100vw",          // ⬅️ fill the full screen width
@@ -141,6 +141,7 @@ function App() {
 >
 
       <div style={{ textAlign: "center", width: "100%", maxWidth: "520px" }}>
+        <h1 style={{ margin: 0, color: "#222", fontSize: "1.6rem" }}></h1>
         <h1 style={{ margin: 0, color: "#ff776bff", fontSize: "2.4rem",textShadow: "2px 2px #222",
           fontFamily: "'Comic Sans MS', 'Comic Neue', cursive",
           letterSpacing: "3px",
@@ -200,6 +201,14 @@ function App() {
               }}
               onMouseUp={(e) => (e.currentTarget.style.transform = "none")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "none")}
+              onMouseEnter={(e) => {
+                if (!squares[idx] && !winner) {
+                e.currentTarget.style.transform = "scale(1.05)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+      }
+    }}
+    
+    
             >
               {val}
             </button>
@@ -245,5 +254,4 @@ const buttonHoverStyle = {
   transform: "scale(1.1)",
   boxShadow: "0 0 20px rgba(0, 123, 255, 0.8)",
 };
-
 export default App;
